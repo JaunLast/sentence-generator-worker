@@ -1,0 +1,17 @@
+name = "sentence-generator-worker"
+main = "src/index.ts"
+compatibility_date = "2023-12-01"
+
+[env.production]
+name = "sentence-generator-worker"
+
+[env.staging]
+name = "sentence-generator-worker-staging"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sentence-generator-db"
+database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
+
+[observability]
+enabled = true

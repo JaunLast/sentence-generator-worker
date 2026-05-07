@@ -1,0 +1,392 @@
+{
+	"info": {
+		"_postman_id": "sentence-generator-api",
+		"name": "Sentence Generator API",
+		"description": "API documentation and tests for the Sentence Generator Cloudflare Worker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has status field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData.status).to.eql('healthy');",
+							"});",
+							"",
+							"pm.test(\"Response has timestamp\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('timestamp');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"health"
+					]
+				},
+				"description": "Health check endpoint to verify the API is running"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response contains categories data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Categories have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.data.length > 0) {",
+							"        pm.expect(jsonData.data[0]).to.have.property('id');",
+							"        pm.expect(jsonData.data[0]).to.have.property('name');",
+							"        pm.expect(jsonData.data[0]).to.have.property('description');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"categories"
+					]
+				},
+				"description": "Retrieve all word categories (noun, verb, adjective, adverb)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Words",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response contains words data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Words have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.data.length > 0) {",
+							"        pm.expect(jsonData.data[0]).to.have.property('id');",
+							"        pm.expect(jsonData.data[0]).to.have.property('word');",
+							"        pm.expect(jsonData.data[0]).to.have.property('category_id');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/words",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"words"
+					]
+				},
+				"description": "Retrieve all words from the database"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Words by Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"All words belong to requested category\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var categoryId = pm.request.url.query.get('category_id');",
+							"    jsonData.data.forEach(function(word) {",
+							"        pm.expect(word.category_id).to.eql(parseInt(categoryId));",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/words?category_id=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"words"
+					],
+					"query": [
+						{
+							"key": "category_id",
+							"value": "1",
+							"description": "Filter by category ID (1=noun, 2=verb, 3=adjective, 4=adverb)"
+						}
+					]
+				},
+				"description": "Retrieve words filtered by category ID"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Sentence - Happy Path",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response contains sentence\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('sentence');",
+							"    pm.expect(jsonData.data.sentence).to.be.a('string');",
+							"    pm.expect(jsonData.data.sentence.length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"Sentence starts with capital letter\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var sentence = jsonData.data.sentence;",
+							"    pm.expect(sentence.charAt(0)).to.match(/[A-Z]/);",
+							"});",
+							"",
+							"pm.test(\"Sentence ends with period\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var sentence = jsonData.data.sentence;",
+							"    pm.expect(sentence.charAt(sentence.length - 1)).to.eql('.');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"includeNoun\": true,\n  \"includeVerb\": true,\n  \"includeAdjective\": true,\n  \"includeAdverb\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/generate-sentence",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"generate-sentence"
+					]
+				},
+				"description": "Generate a sentence with selected parts of speech (Happy Path)"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Sentence - All Parts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is successful\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Sentence contains multiple words\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var sentence = jsonData.data.sentence;",
+							"    var wordCount = sentence.split(' ').length;",
+							"    pm.expect(wordCount).to.be.above(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"includeNoun\": true,\n  \"includeVerb\": true,\n  \"includeAdjective\": true,\n  \"includeAdverb\": true\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/generate-sentence",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"generate-sentence"
+					]
+				},
+				"description": "Generate a sentence with all parts of speech selected"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Sentence - Sad Path (No Selection)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response indicates failure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"});",
+							"",
+							"pm.test(\"Response contains error message\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.be.a('string');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"includeNoun\": false,\n  \"includeVerb\": false,\n  \"includeAdjective\": false,\n  \"includeAdverb\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/generate-sentence",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"generate-sentence"
+					]
+				},
+				"description": "Test error handling when no parts of speech are selected (Sad Path)"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8787",
+			"type": "string"
+		}
+	]
+}
