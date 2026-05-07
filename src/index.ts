@@ -1,18 +1,7 @@
+import { SentenceFactory, SentenceOptions } from './SentenceFactory';
+
 export interface Env {
 	DB: D1Database;
-}
-
-interface SentenceRequest {
-	includeNoun?: boolean;
-	includeVerb?: boolean;
-	includeAdjective?: boolean;
-	includeAdverb?: boolean;
-}
-
-interface Word {
-	id: number;
-	word: string;
-	category_id: number;
 }
 
 export default {
@@ -26,37 +15,64 @@ export default {
 			'Access-Control-Allow-Headers': 'Content-Type',
 		};
 
+		// Handle CORS preflight
 		if (request.method === 'OPTIONS') {
 			return new Response(null, { headers: corsHeaders });
 		}
 
+		// Initialize SentenceFactory
+		const factory = new SentenceFactory(env.DB);
+
 		try {
+			// Health check endpoint
 			if (path === '/api/health' && request.method === 'GET') {
-				return Response.json({ status: 'healthy', timestamp: new Date().toISOString() }, { headers: corsHeaders });
+				return Response.json(
+					{ status: 'healthy', timestamp: new Date().toISOString() },
+					{ headers: corsHeaders }
+				);
 			}
 
+			// Get all categories
 			if (path === '/api/categories' && request.method === 'GET') {
-				const categories = await env.DB.prepare('SELECT * FROM Categories ORDER BY name').all();
-				return Response.json({ success: true, data: categories.results }, { headers: corsHeaders });
+				const categories = await factory.getCategories();
+				return Response.json(
+					{ success: true, data: categories },
+					{ headers: corsHeaders }
+				);
 			}
 
+			// Get words (optionally filtered by category)
 			if (path === '/api/words' && request.method === 'GET') {
 				const categoryId = url.searchParams.get('category_id');
-				let query = 'SELECT * FROM Words';
-				
-				if (categoryId) {
-					query += ' WHERE category_id = ?';
-					const words = await env.DB.prepare(query).bind(categoryId).all();
-					return Response.json({ success: true, data: words.results }, { headers: corsHeaders });
-				}
-				
-				const words = await env.DB.prepare(query).all();
-				return Response.json({ success: true, data: words.results }, { headers: corsHeaders });
+				const words = await factory.getWords(categoryId ? parseInt(categoryId) : undefined);
+				return Response.json(
+					{ success: true, data: words },
+					{ headers: corsHeaders }
+				);
 			}
 
+			// Get word count statistics
+			if (path === '/api/stats' && request.method === 'GET') {
+				const stats = await factory.getWordCountByCategory();
+				return Response.json(
+					{ success: true, data: stats },
+					{ headers: corsHeaders }
+				);
+			}
+
+			// Generate sentence
 			if (path === '/api/generate-sentence' && request.method === 'POST') {
-				const body: SentenceRequest = await request.json();
-				const sentence = await generateSentence(env.DB, body);
+				const options: SentenceOptions = await request.json();
+
+				// Validate options
+				if (!SentenceFactory.validateOptions(options)) {
+					return Response.json(
+						{ success: false, error: 'At least one part of speech must be selected' },
+						{ status: 400, headers: corsHeaders }
+					);
+				}
+
+				const sentence = await factory.generate(options);
 				
 				if (!sentence) {
 					return Response.json(
@@ -65,9 +81,13 @@ export default {
 					);
 				}
 
-				return Response.json({ success: true, data: { sentence } }, { headers: corsHeaders });
+				return Response.json(
+					{ success: true, data: { sentence } },
+					{ headers: corsHeaders }
+				);
 			}
 
+			// 404 for unknown routes
 			return Response.json(
 				{ success: false, error: 'Not found' },
 				{ status: 404, headers: corsHeaders }
@@ -81,57 +101,3 @@ export default {
 		}
 	},
 };
-
-async function generateSentence(db: D1Database, options: SentenceRequest): Promise<string | null> {
-	const parts: string[] = [];
-
-	try {
-		if (options.includeAdjective) {
-			const adjective = await getRandomWord(db, 'adjective');
-			if (adjective) parts.push(adjective);
-		}
-
-		if (options.includeNoun) {
-			const noun = await getRandomWord(db, 'noun');
-			if (noun) parts.push(noun);
-		}
-
-		if (options.includeAdverb) {
-			const adverb = await getRandomWord(db, 'adverb');
-			if (adverb) parts.push(adverb);
-		}
-
-		if (options.includeVerb) {
-			const verb = await getRandomWord(db, 'verb');
-			if (verb) parts.push(verb);
-		}
-
-		if (parts.length === 0) {
-			return null;
-		}
-
-		const sentence = parts.join(' ');
-		return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
-	} catch (error) {
-		console.error('Error generating sentence:', error);
-		return null;
-	}
-}
-
-async function getRandomWord(db: D1Database, categoryName: string): Promise<string | null> {
-	try {
-		const result = await db.prepare(`
-			SELECT w.word 
-			FROM Words w
-			JOIN Categories c ON w.category_id = c.id
-			WHERE c.name = ?
-			ORDER BY RANDOM()
-			LIMIT 1
-		`).bind(categoryName).first<Word>();
-
-		return result?.word || null;
-	} catch (error) {
-		console.error(`Error fetching random ${categoryName}:`, error);
-		return null;
-	}
-}
