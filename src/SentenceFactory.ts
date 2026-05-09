@@ -3,6 +3,10 @@ export interface SentenceOptions {
   includeVerb?: boolean;
   includeAdjective?: boolean;
   includeAdverb?: boolean;
+  noun?: string;
+  verb?: string;
+  adjective?: string;
+  adverb?: string;
 }
 
 interface Word {
@@ -27,25 +31,42 @@ export class SentenceFactory {
     const parts: string[] = [];
 
     try {
-      // Build sentence in grammatical order: adjective, noun, adverb, verb
-      if (options.includeAdjective) {
-        const adjective = await this.getRandomWord('adjective');
-        if (adjective) parts.push(adjective);
-      }
+      // Build sentence in proper English grammar: The [Noun] [Verb] [Adverb] [Adjective]
+      // Example: "The dog ran extremely fast."
+      
+      // Article
+      parts.push('the');
 
-      if (options.includeNoun) {
+      // Noun
+      if (options.noun) {
+        parts.push(options.noun.toLowerCase());
+      } else if (options.includeNoun) {
         const noun = await this.getRandomWord('noun');
-        if (noun) parts.push(noun);
+        if (noun) parts.push(noun.toLowerCase());
       }
 
-      if (options.includeAdverb) {
-        const adverb = await this.getRandomWord('adverb');
-        if (adverb) parts.push(adverb);
-      }
-
-      if (options.includeVerb) {
+      // Verb
+      if (options.verb) {
+        parts.push(options.verb.toLowerCase());
+      } else if (options.includeVerb) {
         const verb = await this.getRandomWord('verb');
-        if (verb) parts.push(verb);
+        if (verb) parts.push(verb.toLowerCase());
+      }
+
+      // Adverb
+      if (options.adverb) {
+        parts.push(options.adverb.toLowerCase());
+      } else if (options.includeAdverb) {
+        const adverb = await this.getRandomWord('adverb');
+        if (adverb) parts.push(adverb.toLowerCase());
+      }
+
+      // Adjective
+      if (options.adjective) {
+        parts.push(options.adjective.toLowerCase());
+      } else if (options.includeAdjective) {
+        const adjective = await this.getRandomWord('adjective');
+        if (adjective) parts.push(adjective.toLowerCase());
       }
 
       // Return null if no parts were selected or found
@@ -103,13 +124,16 @@ export class SentenceFactory {
    * @returns true if valid, false otherwise
    */
   static validateOptions(options: SentenceOptions): boolean {
-    // At least one option must be true
-    return !!(
+    // Check if using new format (specific words) or old format (boolean flags)
+    const hasSpecificWords = !!(options.noun || options.verb || options.adjective || options.adverb);
+    const hasBooleanFlags = !!(
       options.includeNoun ||
       options.includeVerb ||
       options.includeAdjective ||
       options.includeAdverb
     );
+    
+    return hasSpecificWords || hasBooleanFlags;
   }
 
   /**
@@ -145,6 +169,28 @@ export class SentenceFactory {
       return result.results;
     } catch (error) {
       console.error('Error fetching words:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get words by category name
+   * @param categoryName - Category name (noun, verb, adjective, adverb)
+   * @returns Array of word strings
+   */
+  async getWordsByCategory(categoryName: string): Promise<string[]> {
+    try {
+      const result = await this.db.prepare(`
+        SELECT w.word 
+        FROM Words w
+        JOIN Categories c ON w.category_id = c.id
+        WHERE c.name = ?
+        ORDER BY w.word
+      `).bind(categoryName).all<{ word: string }>();
+
+      return result.results?.map(r => r.word) || [];
+    } catch (error) {
+      console.error(`Error fetching ${categoryName}:`, error);
       return [];
     }
   }

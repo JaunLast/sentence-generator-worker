@@ -51,6 +51,16 @@ export default {
 				);
 			}
 
+			// Get words by category name (nouns, verbs, adjectives, adverbs)
+			if (path.startsWith('/api/words/') && request.method === 'GET') {
+				const categoryName = path.split('/').pop();
+				const words = await factory.getWordsByCategory(categoryName || '');
+				return Response.json(
+					{ success: true, data: words },
+					{ headers: corsHeaders }
+				);
+			}
+
 			// Get word count statistics
 			if (path === '/api/stats' && request.method === 'GET') {
 				const stats = await factory.getWordCountByCategory();
