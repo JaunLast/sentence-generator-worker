@@ -8,9 +8,9 @@ binding = "DB"
 database_name = "sentence-generator-db"
 database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
 
-[vars]
-# JWT_SECRET for local development only - production/staging use wrangler secrets
-JWT_SECRET = "dev-secret-key-change-in-production-min-32-characters-required"
+# [vars]
+# JWT_SECRET removed - set via wrangler secrets for all environments
+# For local dev, set via: npx wrangler secret put JWT_SECRET
 
 [observability]
 enabled = true
