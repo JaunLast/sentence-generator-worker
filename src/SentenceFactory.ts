@@ -31,11 +31,16 @@ export class SentenceFactory {
     const parts: string[] = [];
 
     try {
-      // Build sentence in proper English grammar: The [Noun] [Verb] [Adverb] [Adjective]
-      // Example: "The dog ran extremely fast."
+      // Build sentence in proper English grammar: The [Adjective] [Noun] [Verb] [Adverb]
+      // Example: "The fast dog ran quickly."
       
-      // Article
-      parts.push('the');
+      // Adjective
+      if (options.adjective) {
+        parts.push(options.adjective.toLowerCase());
+      } else if (options.includeAdjective) {
+        const adjective = await this.getRandomWord('adjective');
+        if (adjective) parts.push(adjective.toLowerCase());
+      }
 
       // Noun
       if (options.noun) {
@@ -61,21 +66,13 @@ export class SentenceFactory {
         if (adverb) parts.push(adverb.toLowerCase());
       }
 
-      // Adjective
-      if (options.adjective) {
-        parts.push(options.adjective.toLowerCase());
-      } else if (options.includeAdjective) {
-        const adjective = await this.getRandomWord('adjective');
-        if (adjective) parts.push(adjective.toLowerCase());
-      }
-
       // Return null if no parts were selected or found
       if (parts.length === 0) {
         return null;
       }
 
-      // Capitalize first letter and add period
-      const sentence = parts.join(' ');
+      // Add 'the' article at the beginning
+      const sentence = 'the ' + parts.join(' ');
       return this.formatSentence(sentence);
     } catch (error) {
       console.error('Error generating sentence:', error);

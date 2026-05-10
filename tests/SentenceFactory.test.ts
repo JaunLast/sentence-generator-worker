@@ -40,7 +40,7 @@ describe('SentenceFactory', () => {
 
         const result = await factory.generate(options)
         
-        expect(result).toBe('Cat runs.')
+        expect(result).toBe('The cat runs.')
         expect(mockPrepare).toHaveBeenCalledTimes(2)
       })
 
@@ -50,8 +50,8 @@ describe('SentenceFactory', () => {
             first: vi.fn()
               .mockResolvedValueOnce({ word: 'happy' })    // adjective
               .mockResolvedValueOnce({ word: 'cat' })      // noun
-              .mockResolvedValueOnce({ word: 'quickly' })  // adverb
               .mockResolvedValueOnce({ word: 'runs' })     // verb
+              .mockResolvedValueOnce({ word: 'quickly' })  // adverb
           })
         })
         mockDB.prepare = mockPrepare
@@ -65,7 +65,7 @@ describe('SentenceFactory', () => {
 
         const result = await factory.generate(options)
         
-        expect(result).toBe('Happy cat quickly runs.')
+        expect(result).toBe('The happy cat runs quickly.')
         expect(mockPrepare).toHaveBeenCalledTimes(4)
       })
 
@@ -83,7 +83,7 @@ describe('SentenceFactory', () => {
 
         const result = await factory.generate(options)
         
-        expect(result).toBe('Beautiful.')
+        expect(result).toBe('The beautiful.')
       })
 
       it('should capitalize first letter of sentence', async () => {
@@ -100,8 +100,8 @@ describe('SentenceFactory', () => {
 
         const result = await factory.generate(options)
         
-        expect(result).toBe('Dog.')
-        expect(result?.charAt(0)).toBe('D')
+        expect(result).toBe('The dog.')
+        expect(result?.charAt(0)).toBe('T')
       })
 
       it('should add period at end of sentence', async () => {
@@ -247,7 +247,7 @@ describe('SentenceFactory', () => {
         const result = await factory.generate(options)
         
         // Should still generate with available words
-        expect(result).toBe('Runs.')
+        expect(result).toBe('The runs.')
       })
 
       it('should return null when no words found for any category', async () => {
@@ -433,7 +433,7 @@ describe('SentenceFactory', () => {
 
       const result = await factory.generate(options)
       
-      expect(result).toBe(longWord.charAt(0).toUpperCase() + longWord.slice(1) + '.')
+      expect(result).toBe('The ' + longWord + '.')
     })
 
     it('should handle special characters in words', async () => {
@@ -450,7 +450,7 @@ describe('SentenceFactory', () => {
 
       const result = await factory.generate(options)
       
-      expect(result).toBe("Can't.")
+      expect(result).toBe("The can't.")
     })
   })
 })
