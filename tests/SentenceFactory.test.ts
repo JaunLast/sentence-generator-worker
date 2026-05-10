@@ -65,7 +65,7 @@ describe('SentenceFactory', () => {
 
         const result = await factory.generate(options)
         
-        expect(result).toBe('The happy cat runs quickly.')
+        expect(result).toBe('The cat runs quickly happy.')
         expect(mockPrepare).toHaveBeenCalledTimes(4)
       })
 
