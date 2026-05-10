@@ -1,0 +1,523 @@
+{
+  "info": {
+    "_postman_id": "sentence-generator-api-schema",
+    "name": "Sentence Generator API (with JSON Schema Validation)",
+    "description": "API tests with comprehensive JSON Schema validation for all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time validation",
+              "pm.test(\"Response time is less than 500ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['status', 'timestamp'],",
+              "        properties: {",
+              "            status: {",
+              "                type: 'string',",
+              "                enum: ['healthy']",
+              "            },",
+              "            timestamp: {",
+              "                type: 'string',",
+              "                format: 'date-time'",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    ",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Content-Type validation",
+              "pm.test(\"Content-Type is application/json\", function () {",
+              "    pm.response.to.have.header('Content-Type');",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Get All Categories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time validation",
+              "pm.test(\"Response time is less than 500ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'data'],",
+              "        properties: {",
+              "            success: {",
+              "                type: 'boolean',",
+              "                enum: [true]",
+              "            },",
+              "            data: {",
+              "                type: 'array',",
+              "                items: {",
+              "                    type: 'object',",
+              "                    required: ['id', 'name', 'description', 'created_at'],",
+              "                    properties: {",
+              "                        id: { type: 'integer', minimum: 1 },",
+              "                        name: { ",
+              "                            type: 'string',",
+              "                            enum: ['noun', 'verb', 'adjective', 'adverb']",
+              "                        },",
+              "                        description: { type: 'string' },",
+              "                        created_at: { type: 'string' }",
+              "                    },",
+              "                    additionalProperties: false",
+              "                }",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    ",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Business logic validation",
+              "pm.test(\"Returns exactly 4 categories\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data).to.have.lengthOf(4);",
+              "});",
+              "",
+              "pm.test(\"Categories have correct names\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    const names = jsonData.data.map(cat => cat.name);",
+              "    pm.expect(names).to.include.members(['noun', 'verb', 'adjective', 'adverb']);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/categories",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "categories"]
+        }
+      }
+    },
+    {
+      "name": "Get All Words",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'data'],",
+              "        properties: {",
+              "            success: {",
+              "                type: 'boolean',",
+              "                enum: [true]",
+              "            },",
+              "            data: {",
+              "                type: 'array',",
+              "                items: {",
+              "                    type: 'object',",
+              "                    required: ['id', 'word', 'category_id', 'created_at'],",
+              "                    properties: {",
+              "                        id: { type: 'integer', minimum: 1 },",
+              "                        word: { type: 'string', minLength: 1 },",
+              "                        category_id: { ",
+              "                            type: 'integer',",
+              "                            minimum: 1,",
+              "                            maximum: 4",
+              "                        },",
+              "                        created_at: { type: 'string' }",
+              "                    },",
+              "                    additionalProperties: false",
+              "                }",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    ",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Data validation",
+              "pm.test(\"All words have valid category_id\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    jsonData.data.forEach(word => {",
+              "        pm.expect(word.category_id).to.be.within(1, 4);",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/words",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "words"]
+        }
+      }
+    },
+    {
+      "name": "Get Words by Category (Nouns)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'data'],",
+              "        properties: {",
+              "            success: { type: 'boolean', enum: [true] },",
+              "            data: {",
+              "                type: 'array',",
+              "                items: {",
+              "                    type: 'object',",
+              "                    required: ['id', 'word', 'category_id', 'created_at'],",
+              "                    properties: {",
+              "                        id: { type: 'integer' },",
+              "                        word: { type: 'string' },",
+              "                        category_id: { type: 'integer' },",
+              "                        created_at: { type: 'string' }",
+              "                    }",
+              "                }",
+              "            }",
+              "        }",
+              "    };",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Business logic validation",
+              "pm.test(\"All words belong to category 1 (noun)\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    jsonData.data.forEach(word => {",
+              "        pm.expect(word.category_id).to.eql(1);",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/words?category_id=1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "words"],
+          "query": [
+            {
+              "key": "category_id",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Statistics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'data'],",
+              "        properties: {",
+              "            success: { type: 'boolean', enum: [true] },",
+              "            data: {",
+              "                type: 'object',",
+              "                required: ['noun', 'verb', 'adjective', 'adverb'],",
+              "                properties: {",
+              "                    noun: { type: 'integer', minimum: 0 },",
+              "                    verb: { type: 'integer', minimum: 0 },",
+              "                    adjective: { type: 'integer', minimum: 0 },",
+              "                    adverb: { type: 'integer', minimum: 0 }",
+              "                },",
+              "                additionalProperties: false",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Data validation",
+              "pm.test(\"All counts are non-negative integers\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    Object.values(jsonData.data).forEach(count => {",
+              "        pm.expect(count).to.be.a('number');",
+              "        pm.expect(count).to.be.at.least(0);",
+              "        pm.expect(Number.isInteger(count)).to.be.true;",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "stats"]
+        }
+      }
+    },
+    {
+      "name": "Generate Sentence - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'data'],",
+              "        properties: {",
+              "            success: { type: 'boolean', enum: [true] },",
+              "            data: {",
+              "                type: 'object',",
+              "                required: ['sentence'],",
+              "                properties: {",
+              "                    sentence: { ",
+              "                        type: 'string',",
+              "                        minLength: 1,",
+              "                        pattern: '^[A-Z].*\\\\.$'",
+              "                    }",
+              "                },",
+              "                additionalProperties: false",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Business logic validation",
+              "pm.test(\"Sentence starts with capital letter\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.sentence.charAt(0)).to.match(/[A-Z]/);",
+              "});",
+              "",
+              "pm.test(\"Sentence ends with period\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    const sentence = jsonData.data.sentence;",
+              "    pm.expect(sentence.charAt(sentence.length - 1)).to.eql('.');",
+              "});",
+              "",
+              "pm.test(\"Sentence contains at least one word\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    const words = jsonData.data.sentence.replace('.', '').trim().split(' ');",
+              "    pm.expect(words.length).to.be.at.least(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"includeNoun\": true,\n  \"includeVerb\": true,\n  \"includeAdjective\": true,\n  \"includeAdverb\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generate-sentence",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generate-sentence"]
+        }
+      }
+    },
+    {
+      "name": "Generate Sentence - Error (No Selection)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "// JSON Schema validation for error response",
+              "pm.test(\"Error response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'error'],",
+              "        properties: {",
+              "            success: { type: 'boolean', enum: [false] },",
+              "            error: { ",
+              "                type: 'string',",
+              "                minLength: 1",
+              "            }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});",
+              "",
+              "// Error message validation",
+              "pm.test(\"Error message is descriptive\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.error).to.be.a('string');",
+              "    pm.expect(jsonData.error.length).to.be.above(10);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"includeNoun\": false,\n  \"includeVerb\": false,\n  \"includeAdjective\": false,\n  \"includeAdverb\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generate-sentence",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generate-sentence"]
+        }
+      }
+    },
+    {
+      "name": "404 - Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status code validation",
+              "pm.test(\"Status code is 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "// JSON Schema validation",
+              "pm.test(\"Error response matches JSON schema\", function () {",
+              "    const schema = {",
+              "        type: 'object',",
+              "        required: ['success', 'error'],",
+              "        properties: {",
+              "            success: { type: 'boolean', enum: [false] },",
+              "            error: { type: 'string' }",
+              "        },",
+              "        additionalProperties: false",
+              "    };",
+              "    pm.response.to.have.jsonSchema(schema);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/nonexistent",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "nonexistent"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string"
+    }
+  ]
+}

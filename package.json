@@ -15,12 +15,18 @@
     "db:seed:local": "wrangler d1 execute sentence-generator-db --local --file=./migrations/seed.sql",
     "db:setup": "npm run db:migrate:local && npm run db:seed:local"
   },
-  "keywords": ["cloudflare", "workers", "d1", "typescript"],
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "d1",
+    "typescript"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
     "@types/node": "^20.10.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "typescript": "^5.3.3",
     "vitest": "^1.0.4",
     "wrangler": "^3.19.0"
