@@ -23,6 +23,23 @@ export default {
 			return new Response(null, { headers: corsHeaders });
 		}
 
+		// Default route for root path
+		if (path === '/') {
+			return Response.json(
+				{ 
+					success: true, 
+					message: 'Sentence Generator API',
+					version: '1.0.0',
+					endpoints: {
+						auth: '/api/auth/*',
+						sentences: '/api/sentences',
+						history: '/api/history/*'
+					}
+				},
+				{ headers: corsHeaders }
+			);
+		}
+
 		// Initialize services
 		const factory = new SentenceFactory(env.DB);
 		const authService = new AuthService(env.DB, env.JWT_SECRET);
