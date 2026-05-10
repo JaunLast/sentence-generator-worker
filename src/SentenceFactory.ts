@@ -28,51 +28,77 @@ export class SentenceFactory {
    * @returns Generated sentence or null if unable to generate
    */
   async generate(options: SentenceOptions): Promise<string | null> {
-    const parts: string[] = [];
-
     try {
       // Build sentence in proper English grammar: The [Adjective] [Noun] [Verb] [Adverb]
-      // Example: "The fast dog ran quickly."
+      // Example: "The fast dog runs quickly."
       
-      // Adjective
+      let adjective = '';
+      let noun = '';
+      let verb = '';
+      let adverb = '';
+
+      // Get adjective (modifies noun)
       if (options.adjective) {
-        parts.push(options.adjective.toLowerCase());
+        adjective = options.adjective.toLowerCase();
       } else if (options.includeAdjective) {
-        const adjective = await this.getRandomWord('adjective');
-        if (adjective) parts.push(adjective.toLowerCase());
+        const word = await this.getRandomWord('adjective');
+        if (word) adjective = word.toLowerCase();
       }
 
-      // Noun
+      // Get noun
       if (options.noun) {
-        parts.push(options.noun.toLowerCase());
+        noun = options.noun.toLowerCase();
       } else if (options.includeNoun) {
-        const noun = await this.getRandomWord('noun');
-        if (noun) parts.push(noun.toLowerCase());
+        const word = await this.getRandomWord('noun');
+        if (word) noun = word.toLowerCase();
       }
 
-      // Verb
+      // Get verb
       if (options.verb) {
-        parts.push(options.verb.toLowerCase());
+        verb = options.verb.toLowerCase();
       } else if (options.includeVerb) {
-        const verb = await this.getRandomWord('verb');
-        if (verb) parts.push(verb.toLowerCase());
+        const word = await this.getRandomWord('verb');
+        if (word) verb = word.toLowerCase();
       }
 
-      // Adverb
+      // Get adverb (modifies verb)
       if (options.adverb) {
-        parts.push(options.adverb.toLowerCase());
+        adverb = options.adverb.toLowerCase();
       } else if (options.includeAdverb) {
-        const adverb = await this.getRandomWord('adverb');
-        if (adverb) parts.push(adverb.toLowerCase());
+        const word = await this.getRandomWord('adverb');
+        if (word) adverb = word.toLowerCase();
       }
 
-      // Return null if no parts were selected or found
-      if (parts.length === 0) {
+      // Build sentence with proper grammar
+      const parts: string[] = ['the'];
+
+      // Add noun (e.g., "the car")
+      if (noun) parts.push(noun);
+
+      // Add verb (e.g., "drives")
+      if (verb) parts.push(verb);
+
+      // Add adverb + adjective after verb (e.g., "drives very slow")
+      // Or just adverb (e.g., "drives quickly")
+      // Or just adjective (e.g., "drives slow")
+      if (adverb && adjective) {
+        // Both: "drives very slow"
+        parts.push(adverb);
+        parts.push(adjective);
+      } else if (adverb) {
+        // Just adverb: "drives quickly"
+        parts.push(adverb);
+      } else if (adjective) {
+        // Just adjective: "drives slow"
+        parts.push(adjective);
+      }
+
+      // Return null if no meaningful content
+      if (parts.length <= 1) {
         return null;
       }
 
-      // Add 'the' article at the beginning
-      const sentence = 'the ' + parts.join(' ');
+      const sentence = parts.join(' ');
       return this.formatSentence(sentence);
     } catch (error) {
       console.error('Error generating sentence:', error);
@@ -178,7 +204,7 @@ export class SentenceFactory {
   async getWordsByCategory(categoryName: string): Promise<string[]> {
     try {
       const result = await this.db.prepare(`
-        SELECT w.word 
+        SELECT DISTINCT w.word 
         FROM Words w
         JOIN Categories c ON w.category_id = c.id
         WHERE c.name = ?

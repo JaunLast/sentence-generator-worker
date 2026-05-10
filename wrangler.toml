@@ -2,16 +2,33 @@ name = "sentence-generator-worker"
 main = "src/index.ts"
 compatibility_date = "2023-12-01"
 
-[env.production]
-name = "sentence-generator-worker"
-
-[env.staging]
-name = "sentence-generator-worker-staging"
-
+# Local development configuration
 [[d1_databases]]
 binding = "DB"
 database_name = "sentence-generator-db"
 database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
 
+[vars]
+# JWT_SECRET for local development only - production/staging use wrangler secrets
+JWT_SECRET = "dev-secret-key-change-in-production-min-32-characters-required"
+
 [observability]
 enabled = true
+
+# Production environment
+[env.production]
+name = "sentence-generator-worker"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "sentence-generator-db"
+database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
+
+# Staging environment
+[env.staging]
+name = "sentence-generator-worker-staging"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "sentence-generator-db"
+database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
