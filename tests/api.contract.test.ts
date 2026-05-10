@@ -60,8 +60,8 @@ describe('API Contract Tests', () => {
       const response = await worker.default.fetch(request, mockEnv, mockCtx)
 
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, POST, OPTIONS')
-      expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type')
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, POST, DELETE, OPTIONS')
+      expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
     })
 
     it('should handle OPTIONS preflight requests', async () => {
