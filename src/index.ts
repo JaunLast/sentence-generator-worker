@@ -91,7 +91,7 @@ export default {
 
 			// Auth endpoints
 			if (path === '/api/auth/signup' && request.method === 'POST') {
-				const { email, password, name } = await request.json();
+				const { email, password, name } = await request.json() as { email: string; password: string; name?: string };
 				if (!email || !password) {
 					return Response.json(
 						{ success: false, error: 'Email and password are required' },
@@ -113,7 +113,7 @@ export default {
 			}
 
 			if (path === '/api/auth/login' && request.method === 'POST') {
-				const { email, password } = await request.json();
+				const { email, password } = await request.json() as { email: string; password: string };
 				if (!email || !password) {
 					return Response.json(
 						{ success: false, error: 'Email and password are required' },
