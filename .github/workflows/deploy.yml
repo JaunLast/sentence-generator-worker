@@ -130,6 +130,15 @@ jobs:
       - name: Build validation
         run: npx tsc --noEmit
 
+      - name: Set JWT_SECRET in Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: secret put JWT_SECRET --env production
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
       - name: Deploy to Cloudflare Workers (Production)
         uses: cloudflare/wrangler-action@v3
         with:
