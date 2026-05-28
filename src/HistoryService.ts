@@ -111,4 +111,25 @@ export class HistoryService {
 
     return result.success;
   }
+
+  async saveSentence(userId: string, sentence: string): Promise<HistoryItem> {
+    const id = generateId();
+    const now = Date.now();
+
+    await this.db
+      .prepare(
+        `INSERT INTO sentence_history 
+        (id, user_id, sentence, include_noun, include_verb, include_adjective, include_adverb, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(id, userId, sentence, 0, 0, 0, 0, now)
+      .run();
+
+    return {
+      id,
+      sentence,
+      createdAt: new Date(now).toISOString(),
+      options: {},
+    };
+  }
 }

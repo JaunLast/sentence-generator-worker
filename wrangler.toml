@@ -2,15 +2,18 @@ name = "sentence-generator-worker"
 main = "src/index.ts"
 compatibility_date = "2023-12-01"
 
+# Cloudflare AI binding
+[ai]
+binding = "AI"
+
 # Local development configuration
 [[d1_databases]]
 binding = "DB"
 database_name = "sentence-generator-db"
 database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
 
-# [vars]
-# JWT_SECRET removed - set via wrangler secrets for all environments
-# For local dev, set via: npx wrangler secret put JWT_SECRET
+[vars]
+JWT_SECRET = "local-dev-secret-key-change-this-in-production"
 
 [observability]
 enabled = true

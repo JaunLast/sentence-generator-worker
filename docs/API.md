@@ -251,14 +251,14 @@ const response = await fetch('/api/generate-sentence', {
 });
 
 const data = await response.json();
-console.log(data.data.sentence); // "Happy cat quickly runs."
+console.log(data.data.sentence);
 ```
 
 **Get Categories:**
 ```javascript
 const response = await fetch('/api/categories');
 const data = await response.json();
-console.log(data.data); // Array of categories
+console.log(data.data);
 ```
 
 ---

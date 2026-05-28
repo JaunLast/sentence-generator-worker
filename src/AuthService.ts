@@ -103,4 +103,31 @@ export class AuthService {
       provider: result.provider,
     };
   }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    const result = await this.db
+      .prepare('SELECT id, email, name, avatar, provider FROM users WHERE email = ?')
+      .bind(email)
+      .first<{ id: string; email: string; name: string | null; avatar: string | null; provider: string }>();
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      id: result.id,
+      email: result.email,
+      name: result.name || undefined,
+      avatar: result.avatar || undefined,
+      provider: result.provider,
+    };
+  }
+
+  async generateToken(userId: string): Promise<string> {
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return generateToken(userId, user.email, this.jwtSecret);
+  }
 }
