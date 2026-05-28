@@ -331,6 +331,11 @@ export default {
 			if (path === '/api/generate-sentence' && request.method === 'POST') {
 				try {
 					const options: SentenceOptions = await request.json();
+					
+					if (!options.includeNoun && !options.includeVerb && !options.includeAdjective && !options.includeAdverb) {
+						return jsonResponse({ success: false, error: 'At least one word type must be selected' }, 400);
+					}
+					
 					const parts: string[] = [];
 					if (options.includeNoun) parts.push('a noun');
 					if (options.includeVerb) parts.push('a verb');
