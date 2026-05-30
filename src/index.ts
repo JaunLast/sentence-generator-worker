@@ -88,7 +88,7 @@ export default {
 					
 					const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
 						messages: [
-							{ role: 'system', content: 'You are a creative sentence generator. Generate only the requested sentence with no additional text or explanations.' },
+							{ role: 'system', content: 'You are a creative sentence generator. When given specific words, you MUST use those exact words in the sentence - never use synonyms or variations. Generate only the requested sentence with no additional text or explanations.' },
 							{ role: 'user', content: aiPrompt }
 						],
 						max_tokens: 100,
@@ -227,7 +227,8 @@ export default {
 					}
 					
 					const token = await authService.generateToken(user.id);
-					const frontendUrl = request.headers.get('origin') || 'http://localhost:3000';
+					const isProduction = url.origin.includes('workers.dev');
+				const frontendUrl = isProduction ? 'https://sentence-generator-react.pages.dev' : 'http://localhost:3000';
 					return Response.redirect(`${frontendUrl}?token=${token}`, 302);
 				} catch (error) {
 					console.error('Google OAuth error:', error);
@@ -292,7 +293,8 @@ export default {
 					}
 					
 					const token = await authService.generateToken(user.id);
-					const frontendUrl = request.headers.get('origin') || 'http://localhost:3000';
+					const isProduction = url.origin.includes('workers.dev');
+				const frontendUrl = isProduction ? 'https://sentence-generator-react.pages.dev' : 'http://localhost:3000';
 					return Response.redirect(`${frontendUrl}?token=${token}`, 302);
 				} catch (error) {
 					console.error('GitHub OAuth error:', error);
@@ -354,14 +356,14 @@ export default {
 					if (options.adverb) specificWords.push(`the adverb "${options.adverb}"`);
 					
 					if (specificWords.length > 0) {
-						aiPrompt += ` using ${specificWords.join(', ')}`;
+						aiPrompt += ` using EXACTLY ${specificWords.join(', ')} - you MUST use these exact words, do not use synonyms or variations`;
 					}
 					
 					aiPrompt += '. Only respond with the sentence itself, no explanations or additional text.';
 
 					const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
 						messages: [
-							{ role: 'system', content: 'You are a creative sentence generator. Generate only the requested sentence with no additional text or explanations.' },
+							{ role: 'system', content: 'You are a creative sentence generator. When given specific words, you MUST use those exact words in the sentence - never use synonyms or variations. Generate only the requested sentence with no additional text or explanations.' },
 							{ role: 'user', content: aiPrompt }
 						],
 						max_tokens: 100,
