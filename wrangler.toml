@@ -31,7 +31,11 @@ database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
 [env.staging]
 name = "sentence-generator-worker-staging"
 
+
+[env.staging.ai]
+binding = "AI"
+
 [[env.staging.d1_databases]]
 binding = "DB"
-database_name = "sentence-generator-db"
-database_id = "3e8a01f2-d867-4b7b-bece-1597c96db37f"
+database_name = "sentence-generator-db-staging"
+database_id = "950592de-1f99-4bf4-bb6e-209b0ac68079"

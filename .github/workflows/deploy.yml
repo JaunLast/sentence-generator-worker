@@ -74,7 +74,7 @@ jobs:
     if: github.event_name == 'pull_request'
     environment:
       name: staging
-      url: https://sentence-generator-worker-staging.workers.dev
+      url: https://sentence-generator-worker-staging.jaun98last.workers.dev
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -90,6 +90,13 @@ jobs:
 
       - name: Build validation
         run: npx tsc --noEmit
+
+      - name: Run database migrations (Staging)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply sentence-generator-db-staging --env staging --remote
 
       - name: Deploy to Cloudflare Workers (Staging)
         uses: cloudflare/wrangler-action@v3
@@ -113,7 +120,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: https://sentence-generator-worker.workers.dev
+      url: https://sentence-generator-worker.jaun98last.workers.dev
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -130,11 +137,12 @@ jobs:
       - name: Build validation
         run: npx tsc --noEmit
 
-      - name: Set JWT_SECRET in Cloudflare
-        run: echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET --env production
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Run database migrations (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply sentence-generator-db --remote
 
       - name: Deploy to Cloudflare Workers (Production)
         uses: cloudflare/wrangler-action@v3
@@ -142,13 +150,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy --env production
-
-      - name: Run database migrations
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 migrations apply sentence-generator-db --remote
 
       - name: Deployment status
         if: success()
