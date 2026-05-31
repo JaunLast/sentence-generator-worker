@@ -224,9 +224,10 @@ export default {
 					let user = await authService.getUserByEmail(userInfo.email);
 					if (!user) {
 						const userId = crypto.randomUUID();
+						const now = Date.now();
 						await env.DB.prepare(
-							'INSERT INTO Users (id, email, password_hash, name) VALUES (?, ?, ?, ?)'
-						).bind(userId, userInfo.email, 'oauth-google', userInfo.name).run();
+							'INSERT INTO Users (id, email, password_hash, name, provider, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+						).bind(userId, userInfo.email, 'oauth-google', userInfo.name, 'google', now, now).run();
 						user = { id: userId, email: userInfo.email, name: userInfo.name, provider: 'google' };
 					}
 					
@@ -235,8 +236,13 @@ export default {
 					}
 					
 					const token = await authService.generateToken(user.id);
-					const isProduction = url.origin.includes('workers.dev');
-				const frontendUrl = isProduction ? 'https://sentence-generator-react.pages.dev' : 'http://localhost:3000';
+					const isStaging = url.origin.includes('staging');
+					const isProduction = url.origin.includes('workers.dev') && !isStaging;
+					const frontendUrl = isStaging 
+						? 'https://ee7d849c.sentence-generator-react.pages.dev' 
+						: isProduction 
+							? 'https://sentence-generator-react.pages.dev' 
+							: 'http://localhost:3000';
 					return Response.redirect(`${frontendUrl}?token=${token}`, 302);
 				} catch (error) {
 					console.error('Google OAuth error:', error);
@@ -291,9 +297,10 @@ export default {
 					let user = await authService.getUserByEmail(primaryEmail);
 					if (!user) {
 						const userId = crypto.randomUUID();
+						const now = Date.now();
 						await env.DB.prepare(
-							'INSERT INTO Users (id, email, password_hash, name) VALUES (?, ?, ?, ?)'
-						).bind(userId, primaryEmail, 'oauth-github', userInfo.name || userInfo.login).run();
+							'INSERT INTO Users (id, email, password_hash, name, provider, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+						).bind(userId, primaryEmail, 'oauth-github', userInfo.name || userInfo.login, 'github', now, now).run();
 						user = { id: userId, email: primaryEmail, name: userInfo.name || userInfo.login, provider: 'github' };
 					}
 					
@@ -302,8 +309,13 @@ export default {
 					}
 					
 					const token = await authService.generateToken(user.id);
-					const isProduction = url.origin.includes('workers.dev');
-				const frontendUrl = isProduction ? 'https://sentence-generator-react.pages.dev' : 'http://localhost:3000';
+					const isStaging = url.origin.includes('staging');
+					const isProduction = url.origin.includes('workers.dev') && !isStaging;
+					const frontendUrl = isStaging 
+						? 'https://ee7d849c.sentence-generator-react.pages.dev' 
+						: isProduction 
+							? 'https://sentence-generator-react.pages.dev' 
+							: 'http://localhost:3000';
 					return Response.redirect(`${frontendUrl}?token=${token}`, 302);
 				} catch (error) {
 					console.error('GitHub OAuth error:', error);
