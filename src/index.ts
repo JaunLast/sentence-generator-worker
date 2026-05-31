@@ -182,6 +182,11 @@ export default {
 					return new Response('OAuth error: No code provided', { status: 400 });
 				}
 				
+				if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+					console.error('Google OAuth secrets not configured');
+					return new Response('OAuth error: Server configuration error', { status: 500 });
+				}
+				
 				try {
 					const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
 						method: 'POST',
@@ -197,8 +202,9 @@ export default {
 					
 					const tokens = await tokenResponse.json() as any;
 					if (!tokens.access_token) {
-						console.error('Token exchange failed:', tokens);
-						return new Response('OAuth error: Failed to get access token', { status: 500 });
+						console.error('Token exchange failed:', JSON.stringify(tokens));
+						console.error('Token response status:', tokenResponse.status);
+						return new Response(`OAuth error: ${tokens.error || 'Failed to get access token'} - ${tokens.error_description || ''}`, { status: 500 });
 					}
 					
 					const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -232,7 +238,8 @@ export default {
 					return Response.redirect(`${frontendUrl}?token=${token}`, 302);
 				} catch (error) {
 					console.error('Google OAuth error:', error);
-					return new Response('OAuth authentication failed', { status: 500 });
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					return new Response(`OAuth authentication failed: ${errorMessage}`, { status: 500 });
 				}
 			}
 
