@@ -8,8 +8,8 @@ export interface Env {
 	JWT_SECRET: string;
 	GOOGLE_CLIENT_ID?: string;
 	GOOGLE_CLIENT_SECRET?: string;
-	GITHUB_CLIENT_ID?: string;
-	GITHUB_CLIENT_SECRET?: string;
+	GH_CLIENT_ID?: string;
+	GH_CLIENT_SECRET?: string;
 }
 
 const CORS_HEADERS = {
@@ -148,7 +148,9 @@ export default {
 
 			if (path === '/api/auth/google' && request.method === 'GET') {
 				const clientId = env.GOOGLE_CLIENT_ID || '';
+				console.log('Google OAuth - Client ID exists:', !!clientId, 'Length:', clientId.length);
 				if (!clientId) {
+					console.error('GOOGLE_CLIENT_ID is not set in environment');
 					return jsonResponse({ success: false, error: 'Google OAuth not configured' }, 501);
 				}
 				const redirectUri = `${url.origin}/auth/google/callback`;
@@ -163,7 +165,7 @@ export default {
 			}
 
 			if (path === '/api/auth/github' && request.method === 'GET') {
-				const clientId = env.GITHUB_CLIENT_ID || '';
+				const clientId = env.GH_CLIENT_ID || '';
 				if (!clientId) {
 					return jsonResponse({ success: false, error: 'GitHub OAuth not configured' }, 501);
 				}
@@ -258,8 +260,8 @@ export default {
 							'Accept': 'application/json',
 						},
 						body: JSON.stringify({
-							client_id: env.GITHUB_CLIENT_ID || '',
-							client_secret: env.GITHUB_CLIENT_SECRET || '',
+							client_id: env.GH_CLIENT_ID || '',
+							client_secret: env.GH_CLIENT_SECRET || '',
 							code,
 							redirect_uri: `${backendOrigin}/api/auth/github/callback`,
 						}),

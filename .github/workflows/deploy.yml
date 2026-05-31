@@ -93,11 +93,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          echo "${{ secrets.JWT_SECRET_STAGING }}" | npx wrangler secret put JWT_SECRET --env staging
-          echo "${{ secrets.GOOGLE_CLIENT_ID_STAGING }}" | npx wrangler secret put GOOGLE_CLIENT_ID --env staging
-          echo "${{ secrets.GOOGLE_CLIENT_SECRET_STAGING }}" | npx wrangler secret put GOOGLE_CLIENT_SECRET --env staging
-          echo "${{ secrets.GITHUB_CLIENT_ID_STAGING }}" | npx wrangler secret put GITHUB_CLIENT_ID --env staging
-          echo "${{ secrets.GITHUB_CLIENT_SECRET_STAGING }}" | npx wrangler secret put GITHUB_CLIENT_SECRET --env staging
+          echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET --env staging
+          echo "${{ secrets.GOOGLE_CLIENT_ID }}" | npx wrangler secret put GOOGLE_CLIENT_ID --env staging
+          echo "${{ secrets.GOOGLE_CLIENT_SECRET }}" | npx wrangler secret put GOOGLE_CLIENT_SECRET --env staging
+          echo "${{ secrets.GH_CLIENT_ID }}" | npx wrangler secret put GITHUB_CLIENT_ID --env staging
+          echo "${{ secrets.GH_CLIENT_SECRET }}" | npx wrangler secret put GITHUB_CLIENT_SECRET --env staging
 
       - name: Run database migrations (Staging)
         uses: cloudflare/wrangler-action@v3
@@ -153,8 +153,8 @@ jobs:
           echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET
           echo "${{ secrets.GOOGLE_CLIENT_ID }}" | npx wrangler secret put GOOGLE_CLIENT_ID
           echo "${{ secrets.GOOGLE_CLIENT_SECRET }}" | npx wrangler secret put GOOGLE_CLIENT_SECRET
-          echo "${{ secrets.GITHUB_CLIENT_ID }}" | npx wrangler secret put GITHUB_CLIENT_ID
-          echo "${{ secrets.GITHUB_CLIENT_SECRET }}" | npx wrangler secret put GITHUB_CLIENT_SECRET
+          echo "${{ secrets.GH_CLIENT_ID }}" | npx wrangler secret put GITHUB_CLIENT_ID
+          echo "${{ secrets.GH_CLIENT_SECRET }}" | npx wrangler secret put GITHUB_CLIENT_SECRET
 
       - name: Run database migrations (Production)
         uses: cloudflare/wrangler-action@v3
