@@ -88,6 +88,17 @@ jobs:
       - name: Build validation
         run: npx tsc --noEmit
 
+      - name: Set secrets (Staging)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET --env staging
+          echo "${{ secrets.GOOGLE_CLIENT_ID }}" | npx wrangler secret put GOOGLE_CLIENT_ID --env staging
+          echo "${{ secrets.GOOGLE_CLIENT_SECRET }}" | npx wrangler secret put GOOGLE_CLIENT_SECRET --env staging
+          echo "${{ secrets.GH_CLIENT_ID_STAGE }}" | npx wrangler secret put GH_CLIENT_ID --env staging
+          echo "${{ secrets.GH_CLIENT_SECRET_STAGE }}" | npx wrangler secret put GH_CLIENT_SECRET --env staging
+
       - name: Run database migrations (Staging)
         uses: cloudflare/wrangler-action@v3
         with:
@@ -134,6 +145,17 @@ jobs:
       - name: Build validation
         run: npx tsc --noEmit
 
+      - name: Set secrets (Production)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET
+          echo "${{ secrets.GOOGLE_CLIENT_ID }}" | npx wrangler secret put GOOGLE_CLIENT_ID
+          echo "${{ secrets.GOOGLE_CLIENT_SECRET }}" | npx wrangler secret put GOOGLE_CLIENT_SECRET
+          echo "${{ secrets.GH_CLIENT_ID }}" | npx wrangler secret put GH_CLIENT_ID
+          echo "${{ secrets.GH_CLIENT_SECRET }}" | npx wrangler secret put GH_CLIENT_SECRET
+
       - name: Run database migrations (Production)
         uses: cloudflare/wrangler-action@v3
         with:
@@ -146,7 +168,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production
+          command: deploy
 
       - name: Deployment status
         if: success()

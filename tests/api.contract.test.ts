@@ -45,8 +45,8 @@ const createMockEnv = (): Env => {
     JWT_SECRET: 'test-secret-key',
     GOOGLE_CLIENT_ID: 'test-google-id',
     GOOGLE_CLIENT_SECRET: 'test-google-secret',
-    GITHUB_CLIENT_ID: 'test-github-id',
-    GITHUB_CLIENT_SECRET: 'test-github-secret',
+    GH_CLIENT_ID: 'test-github-id',
+    GH_CLIENT_SECRET: 'test-github-secret',
   }
 }
 
